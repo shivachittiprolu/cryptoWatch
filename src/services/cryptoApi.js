@@ -1,22 +1,29 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 const cryptoApiHeaders = {
-    'x-rapidapi-host': 'coinranking1.p.rapidapi.com',
-    'x-rapidapi-key': '6683073e36mshd054cb5d2b8ad37p13d91ejsnc2e15ece4322'
-}
-
-const baseUrl = 'https://coinranking1.p.rapidapi.com/';
+  'x-rapidapi-key': process.env.REACT_APP_RAPIDAPI_KEY,
+  'x-rapidapi-host': process.env.REACT_APP_CRYPTO_RAPIDAPI_HOST,
+};
 
 const createRequest = (url) => ({ url, headers: cryptoApiHeaders });
 
 export const cryptoApi = createApi({
-    reducerPath : 'cryptoApi',
-    baseQuery : fetchBaseQuery({ baseUrl }),
-    endpoints: (builder) => ({
-        getCryptos: builder.query({
-            query: () => createRequest('/stats')
-        })
-    })
+  reducerPath: 'cryptoApi',
+  baseQuery: fetchBaseQuery({ baseUrl: process.env.REACT_APP_CRYPTO_API_URL }),
+  endpoints: (builder) => ({
+    getCryptos: builder.query({
+      query: (count) => createRequest(`/coins?limit=${count}`),
+    }),
+    getExchanges: builder.query({
+      query: () => createRequest('/exchanges'),
+    }),
+    getCryptoDetails: builder.query({
+      query: (coinId) => createRequest(`/coin/${coinId}`),
+    }),
+    getCryptoHistory: builder.query({
+      query: ({ coinId, timeperiod }) => createRequest(`coin/${coinId}/history/${timeperiod}`),
+    }),
+  }),
 });
 
-export const { useGetCryptosQuery } = cryptoApi; 
+export const { useGetCryptosQuery, useGetCryptoDetailsQuery, useGetExchangesQuery, useGetCryptoHistoryQuery } = cryptoApi;
